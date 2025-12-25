@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h2>KAREOKE QUEUE</h2>
+    <body>Welcome to the KareokeParty <b>QUEUE</b>!</body>
+
+    <form action="{{ url_for('add_to_queue') }}" method="post">
+      <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
+      <button type="submit">Confirm</button>
+    </form>
+
+{% endblock %}
