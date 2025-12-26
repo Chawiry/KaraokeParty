@@ -60,8 +60,19 @@ def visualizer():
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
         if row:
             url = row[2]  # index 2 of the tuple should be song url
-            return url
+            name = row[0] # index 0 should be song name
+            remove_played_song()
+            url = parse_url(url)
+            return render_template("visualizer.html", song_id=url, song_name=name)
     return "No Songs on Queue"
+
+
+def parse_url(url):
+    str_to_remove = ["https://", "youtu.be/", "www.youtube.com", "/watch?v=", "/embed/"]
+    video_id = url
+    for to_remove in str_to_remove:
+        video_id = video_id.replace(to_remove, "")
+    return video_id
 
 def remove_played_song():
     with sqlite3.connect("song_queue.db") as conn:
