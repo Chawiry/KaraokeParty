@@ -9,7 +9,7 @@ Features
 - [ ] Main web app to show lyrics
 - [ ] Allow for Queue Visualization through Mobile Web App
 - [ ] Allow user to joing songs already in Queue
-
+- [ ] Automated install script
 
 
 ### Usage
@@ -20,3 +20,8 @@ python3 -m venv .KPvenv
 ```
 Linux ``` . ./.KPvenv/bin/activate  ```
 Windows ``` . .\.KPvenv\Scripts\activate.ps1 ```
+
+Install requirements
+```
+ pip install -r .\requirements.txt
+```
