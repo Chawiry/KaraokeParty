@@ -19,4 +19,4 @@ Create the venv and activate it
 python3 -m venv .KPvenv
 ```
 Linux ``` . ./.KPvenv/bin/activate  ```
-Windows ``` . .\.KPvenv\Scripts\activate.bat ```
+Windows ``` . .\.KPvenv\Scripts\activate.ps1 ```
