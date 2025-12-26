@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
@@ -17,8 +17,10 @@ def queue():
 def add_to_queue():
     # Handles POST requests to add song to queue db 
     song_name = request.form.get("song_name")
-    if song_name:
-        if add_song_to_db(song_name, "https://test.com"):    ##### CHANGE TEMP URL
+    song_url = request.form.get("song_url")
+
+    if song_name and song_url:
+        if add_song_to_db(song_name, song_url):
             return render_template('succes.html')
         return render_template('error.html')
     return render_template('error.html')
@@ -49,3 +51,22 @@ def add_song_to_db(song_name, song_url):
         except:
             conn.rollback()
             return False
+
+
+@app.route("/visualizer")
+def visualizer():
+    with sqlite3.connect("song_queue.db") as conn:
+        cursor = conn.cursor()
+        row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
+        if row:
+            url = row[2]  # index 2 of the tuple should be song url
+            return url
+    return "No Songs on Queue"
+
+def remove_played_song():
+    with sqlite3.connect("song_queue.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM song_queue WHERE queue_pos=0;")
+        cursor.execute("UPDATE song_queue SET queue_pos = queue_pos - 1 WHERE queue_pos > 0;")
+        conn.commit()
+    return "Deleted"
