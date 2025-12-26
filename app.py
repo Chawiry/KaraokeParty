@@ -5,17 +5,20 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    # Landing page
     return render_template("index.html")
 
 @app.route("/queue")
 def queue():
+    # Add songs to queue page
     return render_template("queue.html")
 
 @app.route("/add_to_queue", methods=["POST"])
 def add_to_queue():
+    # Handles POST requests to add song to queue db 
     song_name = request.form.get("song_name")
     if song_name:
-        if add_song_to_db(song_name, "http://127.0.0.1:5000/add_to_queue"):
+        if add_song_to_db(song_name, "https://test.com"):    ##### CHANGE TEMP URL
             return render_template('succes.html')
         return render_template('error.html')
     return render_template('error.html')
@@ -29,7 +32,7 @@ def add_song_to_db(song_name, song_url):
         # creates a table if it doesnt exist
         conn.execute("""
             CREATE TABLE IF NOT EXISTS song_queue(
-            song_name srting PRIMARY KEY,
+            song_name STRING PRIMARY KEY,
             queue_pos INTEGER NOT NULL,
             song_url STRING NOT NULL
             )
