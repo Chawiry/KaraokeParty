@@ -3,6 +3,9 @@ from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 
+if __name__ == '__main__':
+    app.run()
+
 @app.route("/")
 def index():
     # Landing page
@@ -59,20 +62,30 @@ def visualizer():
         cursor = conn.cursor()
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
         if row:
-            url = row[2]  # index 2 of the tuple should be song url
+            id = parse_id(row[2])  # index 2 of the tuple should be song url
             name = row[0] # index 0 should be song name
             remove_played_song()
-            url = parse_url(url)
-            return render_template("visualizer.html", song_id=url, song_name=name)
+            if id:
+                return render_template("visualizer.html", song_id=id, song_name=name)
+            else:
+                return "BAD url for song " + name
     return "No Songs on Queue"
 
 
-def parse_url(url):
-    str_to_remove = ["https://", "youtu.be/", "www.youtube.com", "/watch?v=", "/embed/"]
-    video_id = url
-    for to_remove in str_to_remove:
-        video_id = video_id.replace(to_remove, "")
-    return video_id
+def parse_id(url):
+    if '(' in url and ')' in url:
+        url = url.split('(')[-1].split(')')[0]
+
+    if 'youtu.be/' in url:
+        return url.split('youtu.be/')[1].split('?')[0]
+
+    if 'v=' in url:
+        return url.split('v=')[1].split('&')[0]
+
+    if 'embed/' in url:
+        return url.split('embed/')[1].split('?')[0]
+
+    return None
 
 def remove_played_song():
     with sqlite3.connect("song_queue.db") as conn:
