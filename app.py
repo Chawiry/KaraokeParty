@@ -1,17 +1,19 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 
 # For qr code
 import qrcode
 import base64
 import io
 
+import socket
 
 app = Flask(__name__)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host=socket.gethostname())
+    print("Running on: https://" + socket.gethostname() + ":5000/")
 
 
 @app.route("/")
@@ -111,7 +113,6 @@ def parse_id(url):
 def advance_queue():
     data = request.get_json()
     song_name = data.get("song_name")
-    print(song_name)
 
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
