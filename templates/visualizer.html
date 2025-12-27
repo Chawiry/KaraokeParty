@@ -35,7 +35,14 @@
           player.getIframe().requestFullscreen();
         }
         if (event.data == YT.PlayerState.ENDED) {
-          window.location.href = '{{ url_for('visualizer') }}'
+          fetch('/advance_queue', {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({song_name: '{{ song_name }}'})
+          })
+            .then(() => {
+              window.location.href = '{{ url_for('visualizer') }}'
+            });
         }
       }
 
