@@ -80,6 +80,15 @@ def add_song_to_db(song_name, song_url):
 def visualizer():
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
+
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS song_queue(
+            song_name STRING PRIMARY KEY,
+            queue_pos INTEGER NOT NULL,
+            song_url STRING NOT NULL
+            )
+        """)
+
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
         if row:
             id = parse_id(row[2])  # index 2 of the tuple should be song url
