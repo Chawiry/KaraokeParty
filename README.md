@@ -2,13 +2,13 @@
 Self hosted Karaoke Web app
 
 Features
-- [ ] Song Queue
+- [x] Song Queue
 - [ ] Turn Manager (based on song Queue)
-- [ ] Remote Add to Queue, from mobile webapp
-- [ ] Kareoke Video Selection
+- [x] Remote Add to Queue, from mobile WebApp
+- [ ] Karaoke Video Selection
 - [ ] Main web app to show lyrics
 - [ ] Allow for Queue Visualization through Mobile Web App
-- [ ] Allow user to joing songs already in Queue
+- [ ] Allow user to join songs already in Queue
 - [ ] Automated install script
 
 

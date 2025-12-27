@@ -1,7 +1,15 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect
 
+#For qr code
+import qrcode
+import base64
+import io
+
+
 app = Flask(__name__)
+
+
 
 if __name__ == '__main__':
     app.run()
@@ -9,7 +17,14 @@ if __name__ == '__main__':
 @app.route("/")
 def index():
     # Landing page
-    return render_template("index.html")
+    
+    full_url = request.url_root.rstrip('/') + app.url_for('queue')
+    qr = qrcode.make(full_url)
+    img_buffer = io.BytesIO()
+    qr.save(img_buffer, format="PNG")
+    img_str = base64.b64encode(img_buffer.getvalue()).decode()
+
+    return render_template("index.html", qr_data=img_str)
 
 @app.route("/queue")
 def queue():
@@ -69,7 +84,7 @@ def visualizer():
                 return render_template("visualizer.html", song_id=id, song_name=name)
             else:
                 return "BAD url for song " + name
-    return "No Songs on Queue"
+    return "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
 
 
 def parse_id(url):

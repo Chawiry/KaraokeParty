@@ -1,8 +1,13 @@
 {% extends "layout.html" %}
 
 {% block body %}
+    <meta http-equiv="refresh" content="10;url=/visualizer">
     <h2>HELLO THERE</h2>
     <body>Welcome to the KareokeParty landing Page!</body>
-    <a class='btn btn-primary' href="{{ url_for('queue') }}">Click here to add a song to the queue</a>
-    <a class='btn btn-primary' href="{{ url_for('visualizer') }}">Click here to go to VISUALIZER</a>
+    <div>
+      <a class='btn btn-primary' href="{{ url_for('visualizer') }}">Click here to go to VISUALIZER</a>
+    </div>
+    <a href="{{ url_for('queue') }}">
+    <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
+    </a>
 {% endblock %}
