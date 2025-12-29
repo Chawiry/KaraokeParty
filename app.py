@@ -12,20 +12,23 @@ app = Flask(__name__)
 
 
 def createDBTables():
+    print("Creating missing tables ...")
     with sqlite3.connect("song_queue.db") as conn:
         # creates a table if it doesnt exist
         conn.execute("""
             CREATE TABLE IF NOT EXISTS song_queue(
             song_name STRING PRIMARY KEY,
             queue_pos INTEGER NOT NULL,
-            song_url STRING NOT NULL
+            song_url STRING NOT NULL,
+            singers STRING NULL
             )
         """)
         conn.commit()
+    print("Done")
 
 
+createDBTables()
 if __name__ == "__main__":
-    createDBTables()
     app.run(host=socket.gethostname())
     print("Running on: https://" + socket.gethostname() + ":5000/")
 
@@ -106,7 +109,12 @@ def visualizer():
             if id:
                 return render_template("visualizer.html", song_id=id, song_name=name)
             else:
-                return "BAD url for song " + name
+                advance_queue(name)
+                return (
+                    "<h2>BAD url for song <b>"
+                    + name
+                    + "</b></h2>removing it from Queue, please add it again with the correct Yotube Link"
+                )
     return "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
 
 
@@ -126,11 +134,7 @@ def parse_id(url):
     return None
 
 
-@app.route("/advance_queue", methods=["POST"])
-def advance_queue():
-    data = request.get_json()
-    song_name = data.get("song_name")
-
+def advance_queue(song_name):
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -140,4 +144,13 @@ def advance_queue():
             "UPDATE song_queue SET queue_pos = queue_pos - 1 WHERE queue_pos > 0;"
         )
         conn.commit()
+
+
+@app.route("/advance_queue", methods=["POST"])
+def advance_queue_helper():
+    data = request.get_json()
+    song_name = data.get("song_name")
+
+    advance_queue(song_name)
+
     return "", 200

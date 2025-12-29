@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h2>KAREOKE QUEUE</h2>
+    <h2>KARAOKE QUEUE</h2>
     <body>Add songs to the <b>QUEUE</b> below!</body>
 
     <div>
       <form action="{{ url_for('add_to_queue') }}" method="post">
         <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
-        <input type="text" name="song_url" autocomplete="off" required autofocus placeholder="Song URL">
+        <input type="url" name="song_url" autocomplete="off" required autofocus placeholder="Song URL">
+        <!-- <input type=> -->
         <button type="submit">Confirm</button>
       </form>
     </div>
