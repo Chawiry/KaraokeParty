@@ -11,7 +11,21 @@ import socket
 app = Flask(__name__)
 
 
+def createDBTables():
+    with sqlite3.connect("song_queue.db") as conn:
+        # creates a table if it doesnt exist
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS song_queue(
+            song_name STRING PRIMARY KEY,
+            queue_pos INTEGER NOT NULL,
+            song_url STRING NOT NULL
+            )
+        """)
+        conn.commit()
+
+
 if __name__ == "__main__":
+    createDBTables()
     app.run(host=socket.gethostname())
     print("Running on: https://" + socket.gethostname() + ":5000/")
 
@@ -32,7 +46,18 @@ def index():
 @app.route("/queue")
 def queue():
     # Add songs to queue page
-    return render_template("queue.html")
+
+    song_queue = []
+    with sqlite3.connect("song_queue.db") as conn:
+        cursor = conn.cursor()
+        song_queue = cursor.execute("SELECT song_name FROM song_queue").fetchall()
+
+    songs = ""
+    for song in song_queue:
+        songs += f"{song[0]}*^%"  #### *^% is only a separator to split without the risk of spliting a song name on the queue.html file
+
+    songs = songs[0:-3]
+    return render_template("queue.html", songs=songs)
 
 
 @app.route("/add_to_queue", methods=["POST"])
@@ -52,15 +77,6 @@ def add_song_to_db(song_name, song_url):
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
         conn.execute("BEGIN")
-
-        # creates a table if it doesnt exist
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS song_queue(
-            song_name STRING PRIMARY KEY,
-            queue_pos INTEGER NOT NULL,
-            song_url STRING NOT NULL
-            )
-        """)
 
         try:
             cursor.execute("SELECT * FROM song_queue")
@@ -82,14 +98,6 @@ def add_song_to_db(song_name, song_url):
 def visualizer():
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
-
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS song_queue(
-            song_name STRING PRIMARY KEY,
-            queue_pos INTEGER NOT NULL,
-            song_url STRING NOT NULL
-            )
-        """)
 
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
         if row:

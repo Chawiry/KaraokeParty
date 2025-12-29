@@ -2,12 +2,37 @@
 
 {% block body %}
     <h2>KAREOKE QUEUE</h2>
-    <body>Welcome to the KareokeParty <b>QUEUE</b>!</body>
+    <body>Add songs to the <b>QUEUE</b> below!</body>
 
-    <form action="{{ url_for('add_to_queue') }}" method="post">
-      <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
-      <input type="text" name="song_url" autocomplete="off" required autofocus placeholder="Song URL">
-      <button type="submit">Confirm</button>
-    </form>
+    <div>
+      <form action="{{ url_for('add_to_queue') }}" method="post">
+        <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
+        <input type="text" name="song_url" autocomplete="off" required autofocus placeholder="Song URL">
+        <button type="submit">Confirm</button>
+      </form>
+    </div>
+    <br>
+    <div>
+      <h3><b>QUEUE</b></h3>
+      <ol id="songs_List"></ol>
+      <script>
+        let songs = '{{ songs }}';
+        if(songs != '')
+        {
+          let list = document.getElementById("songs_List");
+          songs.split("*^%").forEach((song) => {
+            let li = document.createElement("li");
+            li.innerText = song;
+            list.appendChild(li);
+          });
+        }
+        else
+        {
+          let li = document.createElement("li");
+          li.innerText = "No Songs on QUEUE";
+          document.getElementById("songs_List").appendChild(li);
+        }
+      </script>
+    </div>
 
 {% endblock %}
