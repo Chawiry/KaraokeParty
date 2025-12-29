@@ -110,12 +110,23 @@ def visualizer():
                 return render_template("visualizer.html", song_id=id, song_name=name)
             else:
                 advance_queue(name)
-                return (
-                    "<h2>BAD url for song <b>"
-                    + name
-                    + "</b></h2>removing it from Queue, please add it again with the correct Yotube Link"
+                return error_message(
+                    title="BAD url for song: " + name,
+                    message="removing it from Queue, please add it again with the correct Yotube Link",
+                    redirect_time=60,
+                    redirect_location="visualizer",
                 )
     return "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
+
+
+def error_message(title="", message="", redirect_time=1, redirect_location="queue"):
+    return render_template(
+        "error.html",
+        title=title,
+        message=message,
+        redirect_time=redirect_time,
+        redirect_location=app.url_for(redirect_location),
+    )
 
 
 def parse_id(url):
