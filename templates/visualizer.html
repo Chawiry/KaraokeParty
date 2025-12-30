@@ -1,9 +1,15 @@
 {% extends "layout.html" %}
 
 {% block body %}
+    <center>
     <h1>Karaoke Party</h1>
-    <h2>{{ song_name }}</h2>
+    {% if singers != "" %}
+      <h2>{{ song_name }} → 🎙️{{ singers }}</h2>
+    {% else %} 
+      <h2>{{ song_name }}</h2>
+    {% endif %}
 
+    </center>
     <div id="player"></div>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
@@ -20,7 +26,8 @@
           },
           events: {
             'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
+            'onStateChange': onPlayerStateChange,
+            'onError' : onPlayerError
           }
         });
       }
@@ -35,18 +42,30 @@
           player.getIframe().requestFullscreen();
         }
         if (event.data == YT.PlayerState.ENDED) {
-          fetch('/advance_queue', {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({song_name: '{{ song_name }}'})
-          })
-            .then(() => {
-              window.location.href = '{{ url_for('visualizer') }}'
-            });
+          advance_queue()
+        }
+      }
+
+      function advance_queue() { 
+        fetch('/advance_queue', {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({song_name: '{{ song_name }}'})
+        })
+          .then(() => {
+            window.location.href = '{{ url_for('visualizer') }}'
+          });
+      }
+
+      function onPlayerError(event) {
+        if (event.data === 101 || event.data === 150)
+        {
+          document.getElementById('error').innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready <input type='button' value='Skip' onClick='advance_queue();' /> </h3>"
         }
       }
 
     </script>
 
+    <div id="error" style="color: red;"></div>
 
 {% endblock %}

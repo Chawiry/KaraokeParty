@@ -10,6 +10,8 @@ import socket
 
 app = Flask(__name__)
 
+Song_queue_indexes = {"song_name": 0, "queue_pos": 1, "song_url": 2, "singers": 3}
+
 
 def createDBTables():
     print("Creating missing tables ...")
@@ -53,12 +55,16 @@ def queue():
     song_queue = []
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
-        song_queue = cursor.execute("SELECT song_name FROM song_queue").fetchall()
+        song_queue = cursor.execute("SELECT * FROM song_queue").fetchall()
 
     songs = ""
     for song in song_queue:
-        songs += f"{song[0]}*^%"  #### *^% is only a separator to split without the risk of spliting a song name on the queue.html file
+        singers = str(song[Song_queue_indexes["singers"]])
 
+        if singers.strip() == "":
+            songs += f"{song[Song_queue_indexes['song_name']]}*^%"  #### *^% is only a separator to split without the risk of spliting a song name on the queue.html file
+        else:
+            songs += f"{song[Song_queue_indexes['song_name']]} → 🎙️{singers}*^%"
     songs = songs[0:-3]
     return render_template("queue.html", songs=songs)
 
@@ -66,17 +72,23 @@ def queue():
 @app.route("/add_to_queue", methods=["POST"])
 def add_to_queue():
     # Handles POST requests to add song to queue db
-    song_name = request.form.get("song_name")
-    song_url = request.form.get("song_url")
+    song_name = str(request.form.get("song_name"))
+    song_url = str(request.form.get("song_url"))
+    singers = str(request.form.get("singers"))
 
     if song_name and song_url:
-        if add_song_to_db(song_name, song_url):
+        if add_song_to_db(song_name, song_url, singers):
             return render_template("succes.html")
         return render_template("error.html")
-    return render_template("error.html")
+    return error_message(
+        title="Information is missing!",
+        message="You need to provide a name and a url for your song",
+        redirect_time=10,
+        redirect_location="queue",
+    )
 
 
-def add_song_to_db(song_name, song_url):
+def add_song_to_db(song_name, song_url, singers):
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
         conn.execute("BEGIN")
@@ -86,8 +98,8 @@ def add_song_to_db(song_name, song_url):
             rows = cursor.fetchall()
             queue_pos = len(rows)
             cursor.execute(
-                "INSERT INTO song_queue(song_name, queue_pos, song_url) VALUES(?, ?, ?)",
-                (song_name, queue_pos, song_url),
+                "INSERT INTO song_queue(song_name, queue_pos, song_url, singers) VALUES(?, ?, ?, ?)",
+                (song_name, queue_pos, song_url, singers),
             )
 
             conn.commit()
@@ -104,10 +116,13 @@ def visualizer():
 
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
         if row:
-            id = parse_id(row[2])  # index 2 of the tuple should be song url
-            name = row[0]  # index 0 should be song name
+            id = parse_id(row[Song_queue_indexes["song_url"]])
+            name = row[Song_queue_indexes["song_name"]]
+            singers = row[Song_queue_indexes["singers"]]
             if id:
-                return render_template("visualizer.html", song_id=id, song_name=name)
+                return render_template(
+                    "visualizer.html", song_id=id, song_name=name, singers=singers
+                )
             else:
                 advance_queue(name)
                 return error_message(
@@ -116,6 +131,7 @@ def visualizer():
                     redirect_time=60,
                     redirect_location="visualizer",
                 )
+    # TODO: Change this to a proper template
     return "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
 
 
