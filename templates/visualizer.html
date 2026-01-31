@@ -17,7 +17,7 @@
 
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-          videoId: '{{song_id}}',
+          videoId: '{{vid_id}}',
           width: '100%',
           height: 720,
           playerVars: {
@@ -50,7 +50,7 @@
         fetch('/advance_queue', {
           method: "POST",
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({song_name: '{{ song_name }}'})
+          body: JSON.stringify({song_id: '{{ song_id }}'})
         })
           .then(() => {
             window.location.href = '{{ url_for('visualizer') }}'
@@ -67,5 +67,16 @@
     </script>
 
     <div id="error" style="color: red;"></div>
+    {% if next_song_name != "" %}
+      <div>
+        <h4>NEXT UP: {{ next_song_name }}
+        {% if next_singers %}
+           → 🎙️{{ next_singers}}
+        {% endif %}
+        </h4>
+      </div>
+    {% else %} 
+      <div><h4>NEXT UP: THE QUEUE IS EMPTY, ADD MORE SONGS</h4></div>
+    {% endif %}
 
 {% endblock %}

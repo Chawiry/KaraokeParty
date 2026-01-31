@@ -10,7 +10,17 @@ import socket
 
 app = Flask(__name__)
 
-Song_queue_indexes = {"song_name": 0, "queue_pos": 1, "song_url": 2, "singers": 3}
+Song_queue_indexes = {
+    "song_id": 0,
+    "song_name": 1,
+    "queue_pos": 2,
+    "song_url": 3,
+    "singers": 4,
+}
+
+##############
+## SETTINGS ##
+Max_Singers = 3
 
 
 def createDBTables():
@@ -19,7 +29,8 @@ def createDBTables():
         # creates a table if it doesnt exist
         conn.execute("""
             CREATE TABLE IF NOT EXISTS song_queue(
-            song_name STRING PRIMARY KEY,
+            song_id INTEGER PRIMARY KEY,
+            song_name STRING NOT NULL,
             queue_pos INTEGER NOT NULL,
             song_url STRING NOT NULL,
             singers STRING NULL
@@ -61,10 +72,12 @@ def queue():
     for song in song_queue:
         singers = str(song[Song_queue_indexes["singers"]])
 
+        songs += f"{song[Song_queue_indexes['song_id']]}$%$%{song[Song_queue_indexes['song_name']]}"  ### $%$% is a separator for song id and song_name
+
         if singers.strip() == "":
-            songs += f"{song[Song_queue_indexes['song_name']]}*^%"  #### *^% is only a separator to split without the risk of spliting a song name on the queue.html file
+            songs += "*^%"  #### *^% is only a separator to split without the risk of spliting a song name on the queue.html file
         else:
-            songs += f"{song[Song_queue_indexes['song_name']]} → 🎙️{singers}*^%"
+            songs += f" → 🎙️{singers}*^%"
     songs = songs[0:-3]
     return render_template("queue.html", songs=songs)
 
@@ -74,7 +87,11 @@ def add_to_queue():
     # Handles POST requests to add song to queue db
     song_name = str(request.form.get("song_name"))
     song_url = str(request.form.get("song_url"))
-    singers = str(request.form.get("singers"))
+    singers = ", ".join(
+        x.strip()
+        for x in str(request.form.get("singers")).title().split(",")
+        if x.strip()
+    )
 
     if song_name and song_url:
         if add_song_to_db(song_name, song_url, singers):
@@ -104,24 +121,83 @@ def add_song_to_db(song_name, song_url, singers):
 
             conn.commit()
             return True
-        except:
+        except Exception as e:
+            print(f"DB error: {e}")
             conn.rollback()
             return False
+
+
+@app.route("/add_singer", methods=["POST"])
+def add_singer():
+    data = request.get_json()
+
+    song_id = str(data.get("song_id"))
+    new_singers = str(data.get("new_singer")).strip().split(",")
+    print(song_id)
+    if song_id and new_singers:
+        with sqlite3.connect("song_queue.db") as conn:
+            cursor = conn.cursor()
+            conn.execute("BEGIN")
+
+            try:
+                cursor.execute(
+                    "SELECT singers FROM song_queue WHERE song_id=?", (song_id,)
+                )
+
+                singers = [
+                    s.strip().title()
+                    for s in cursor.fetchone()[0].strip().split(",")
+                    if s.strip()
+                ]
+                msg = ""
+                should_run = False  # prevent Running if nothing changes
+                for new_singer in new_singers:
+                    if new_singer.title() not in singers:
+                        if (len(singers) + 1) <= Max_Singers:
+                            singers.append(new_singer)
+                            should_run = True
+                            msg += f"{new_singer} Added Succesfully!\n"
+                        else:
+                            msg += f"{new_singer} can't be added, Song is full!\n"
+                    else:
+                        msg += f"{new_singer} can't be added, Already in List!\n"
+
+                if should_run:
+                    cursor.execute(
+                        "UPDATE song_queue SET singers=? WHERE song_id=?",
+                        (", ".join(str(x) for x in singers), song_id),
+                    )
+                    conn.commit()
+
+                return msg, 200
+            except Exception as e:
+                conn.rollback()
+                return f"DB error: {e}", 500
+    return "Singers is empty or there is no song id", 500
 
 
 @app.route("/visualizer")
 def visualizer():
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
-
         row = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=0;").fetchone()
+        row2 = cursor.execute("SELECT * FROM song_queue WHERE queue_pos=1;").fetchone()
+        if not row2:
+            row2 = [""] * len(
+                Song_queue_indexes.keys()
+            )  # if row2 is empty create a empty list to prevent errors
         if row:
-            id = parse_id(row[Song_queue_indexes["song_url"]])
+            vid_id = parse_id(row[Song_queue_indexes["song_url"]])
             name = row[Song_queue_indexes["song_name"]]
-            singers = row[Song_queue_indexes["singers"]]
-            if id:
+            if vid_id:
                 return render_template(
-                    "visualizer.html", song_id=id, song_name=name, singers=singers
+                    "visualizer.html",
+                    vid_id=vid_id,
+                    song_id=row[Song_queue_indexes["song_id"]],
+                    song_name=name,
+                    singers=row[Song_queue_indexes["singers"]],
+                    next_song_name=row2[Song_queue_indexes["song_name"]],
+                    next_singers=row2[Song_queue_indexes["singers"]],
                 )
             else:
                 advance_queue(name)
@@ -161,11 +237,11 @@ def parse_id(url):
     return None
 
 
-def advance_queue(song_name):
+def advance_queue(song_id):
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "DELETE FROM song_queue WHERE queue_pos=0 AND song_name= ?", (song_name,)
+            "DELETE FROM song_queue WHERE queue_pos=0 AND song_id= ?", (song_id,)
         )
         cursor.execute(
             "UPDATE song_queue SET queue_pos = queue_pos - 1 WHERE queue_pos > 0;"
@@ -176,8 +252,8 @@ def advance_queue(song_name):
 @app.route("/advance_queue", methods=["POST"])
 def advance_queue_helper():
     data = request.get_json()
-    song_name = data.get("song_name")
+    song_id = data.get("song_id")
 
-    advance_queue(song_name)
+    advance_queue(song_id)
 
     return "", 200
