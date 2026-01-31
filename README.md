@@ -1,4 +1,3 @@
-
 # Karaoke Party
 
 Self hosted Karaoke Web app
@@ -11,6 +10,7 @@ Features
 - [ ] Karaoke Video Selection
 - [x] Main web app to show lyrics
 - [x] Allow for Queue Visualization through Mobile Web App (And Turns)
+- [x] Allow user to join songs already in Queue
 - [ ] Automated install script
 
 ## Usage
