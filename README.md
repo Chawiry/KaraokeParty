@@ -11,11 +11,13 @@ Features
 - [x] Main web app to show lyrics
 - [x] Allow for Queue Visualization through Mobile Web App (And Turns)
 - [x] Allow user to join songs already in Queue
-- [ ] Automated install script
+- [x] Automated install scripts
 
 ## Usage
 
 ---
+Follow the guide or use the ```windowsRun.ps1``` for windows or ```linuxRun.sh``` for Linux
+
 Create the venv and activate it
 
 ```bash
