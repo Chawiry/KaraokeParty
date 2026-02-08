@@ -8,7 +8,7 @@
       <form action="{{ url_for('add_to_queue') }}" method="post">
         <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
         <br>
-        <input type="url" name="song_url" autocomplete="off" required autofocus placeholder="Song URL">
+        <input type="url" name="song_url" autocomplete="off" autofocus placeholder="Song URL">
         <br>
         <label for="names">Enter names (comma-separated):</label><br>
         <textarea name="singers" rows="4" cols="30" placeholder="Jose, Emilio, Diego"></textarea>
@@ -27,9 +27,8 @@
           let list = document.getElementById("songs_List");
           songs.split("*^%").forEach((song) => {    ///*^% is a separator to split without errors
             let li = document.createElement("li");
-            song_data = song.split("$%$%");
-            li.textContent = song_data[1];
-            li.insertAdjacentHTML("beforeend", `<br><a class='btn btn-primary' onclick=joinSong(${song_data[0]})  > TODO-CHANGE Click here To Join Song</a>`)
+            li.textContent = song;
+            li.insertAdjacentHTML("beforeend", "<a class='btn btn-primary' onclick=joinSong()  > TODO-CHANGE Click here To Join Song</a>")
             list.appendChild(li);
           });
         }
@@ -41,26 +40,9 @@
         }
 
 
-        function joinSong(_song_id){
-          let name = prompt("What is your Name?" + _song_id);
-          if (!name) 
-          {
-            alert("Empty name, please enter a correct name!");
-            return;
-          }
-          fetch('/add_singer', {
-            method : "POST",
-            headers : {'Content-Type' : 'application/json'},
-            body : JSON.stringify({song_id: _song_id, new_singer: name})
-          })
-            .then(response => {
-              if(!response.ok) alert("Somethings went wrong")
-              return response.text();
-            })
-            .then(msg => {
-              if (msg) alert(msg);
-              window.location.href = '{{ url_for('queue') }}';
-            });
+        function joinSong(){
+          let name = prompt("what is your name");
+          if name 
         }
       </script>
     </div>

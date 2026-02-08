@@ -1,5 +1,6 @@
 import sqlite3
 from flask import Flask, render_template, request
+from youtube_search import YoutubeSearch
 
 # For qr code
 import qrcode
@@ -87,6 +88,15 @@ def add_to_queue():
     # Handles POST requests to add song to queue db
     song_name = str(request.form.get("song_name"))
     song_url = str(request.form.get("song_url"))
+
+    if not song_url:
+        results = YoutubeSearch(
+            "Embbedable Karaoke " + song_name, max_results=1
+        ).to_dict()
+        print(results[0]["url_suffix"])
+        if results:
+            song_url = results[0]["url_suffix"]
+
     singers = ", ".join(
         x.strip()
         for x in str(request.form.get("singers")).title().split(",")
