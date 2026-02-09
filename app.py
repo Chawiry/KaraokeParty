@@ -87,15 +87,15 @@ def queue():
 def add_to_queue():
     # Handles POST requests to add song to queue db
     song_name = str(request.form.get("song_name"))
-    song_url = str(request.form.get("song_url"))
+    song_url = ""
+    song_artist = str(request.form.get("song_artist"))
 
-    if not song_url:
-        results = YoutubeSearch(
-            "Embbedable Karaoke " + song_name, max_results=1
-        ).to_dict()
-        print(results[0]["url_suffix"])
-        if results:
-            song_url = results[0]["url_suffix"]
+    results = YoutubeSearch(
+        f"Embbedable Karaoke {song_name} - {song_artist}", max_results=1
+    ).to_dict()
+    print(results[0])
+    if results:
+        song_url = results[0]["url_suffix"]
 
     singers = ", ".join(
         x.strip()
@@ -210,7 +210,7 @@ def visualizer():
                     next_singers=row2[Song_queue_indexes["singers"]],
                 )
             else:
-                advance_queue(name)
+                advance_queue(row[Song_queue_indexes["song_id"]])
                 return error_message(
                     title="BAD url for song: " + name,
                     message="removing it from Queue, please add it again with the correct Yotube Link",
