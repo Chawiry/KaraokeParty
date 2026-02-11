@@ -14,6 +14,10 @@ Features
 - [x] Allow user to join songs already in Queue
 - [x] Automated install scripts
 
+
+TODOs
+- [ ] Improve / make UI
+      
 ## Usage
 
 ---
