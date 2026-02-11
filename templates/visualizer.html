@@ -14,10 +14,13 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
       let player;
+      let song_urls = "{{ vid_ids }}".split(',');
+      let url_index = 0;
+      let urls_list_length = song_urls.length;
 
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-          videoId: '{{vid_id}}',
+          videoId: song_urls[url_index],
           width: '100%',
           height: 720,
           playerVars: {
@@ -30,6 +33,8 @@
             'onError' : onPlayerError
           }
         });
+
+        UpdateUrlIndexDisplay();
       }
       
       function onPlayerReady(event) {
@@ -60,13 +65,38 @@
       function onPlayerError(event) {
         if (event.data === 101 || event.data === 150)
         {
-          document.getElementById('error').innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready <input type='button' value='Skip' onClick='advance_queue();' /> </h3>"
+          //Change url, if no more urls show error
+          if (url_index + 1 < urls_list_length)
+          {
+            cycleUrl(1)
+          } else {
+            document.getElementById("error").innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready <input type='button' value='Skip' onClick='advance_queue();' /> </h3>";
+          }
+
         }
       }
 
+      function cycleUrl(dir) {
+        url_index = ((url_index + dir) % urls_list_length + urls_list_length) % urls_list_length;
+        player.loadVideoById(song_urls[url_index]);
+        UpdateUrlIndexDisplay();
+      }
+
+      function UpdateUrlIndexDisplay() {
+        document.getElementById("url_index_display").innerHTML = (url_index + 1) + "/" + song_urls.length;
+      }
+
     </script>
+    
+    <h6>
+      If you don't like the video you can change it here: 
+    <input type="button" value="⬅️" onClick="cycleUrl(-1);" />
+    <input type="button" value="➡️" onClick="cycleUrl(1);" />
+    <div id="url_index_display" style="display: inline-block;"> 0/0</div>
+    </h6>
 
     <div id="error" style="color: red;"></div>
+
     {% if next_song_name != "" %}
       <div>
         <h4>NEXT UP: {{ next_song_name }}

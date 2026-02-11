@@ -15,13 +15,14 @@ Song_queue_indexes = {
     "song_id": 0,
     "song_name": 1,
     "queue_pos": 2,
-    "song_url": 3,
+    "song_urls": 3,
     "singers": 4,
 }
 
 ##############
 ## SETTINGS ##
 Max_Singers = 3
+Max_song_urls = 10
 
 
 def createDBTables():
@@ -33,7 +34,7 @@ def createDBTables():
             song_id INTEGER PRIMARY KEY,
             song_name STRING NOT NULL,
             queue_pos INTEGER NOT NULL,
-            song_url STRING NOT NULL,
+            song_urls STRING NOT NULL,
             singers STRING NULL
             )
         """)
@@ -87,15 +88,15 @@ def queue():
 def add_to_queue():
     # Handles POST requests to add song to queue db
     song_name = str(request.form.get("song_name"))
-    song_url = ""
+    song_urls = []
     song_artist = str(request.form.get("song_artist"))
 
     results = YoutubeSearch(
-        f"Embbedable Karaoke {song_name} - {song_artist}", max_results=1
+        f"Embbedable Karaoke {song_name} - {song_artist}", max_results=Max_song_urls
     ).to_dict()
-    print(results[0])
     if results:
-        song_url = results[0]["url_suffix"]
+        for result in results:
+            song_urls.append(result["url_suffix"])
 
     singers = ", ".join(
         x.strip()
@@ -103,8 +104,8 @@ def add_to_queue():
         if x.strip()
     )
 
-    if song_name and song_url:
-        if add_song_to_db(song_name, song_url, singers):
+    if song_name and song_urls:
+        if add_song_to_db(song_name, song_urls, singers):
             return render_template("succes.html")
         return render_template("error.html")
     return error_message(
@@ -115,18 +116,18 @@ def add_to_queue():
     )
 
 
-def add_song_to_db(song_name, song_url, singers):
+def add_song_to_db(song_name, song_urls, singers):
     with sqlite3.connect("song_queue.db") as conn:
         cursor = conn.cursor()
         conn.execute("BEGIN")
-
+        song_urls_string = parse_id(song_urls)
         try:
             cursor.execute("SELECT * FROM song_queue")
             rows = cursor.fetchall()
             queue_pos = len(rows)
             cursor.execute(
-                "INSERT INTO song_queue(song_name, queue_pos, song_url, singers) VALUES(?, ?, ?, ?)",
-                (song_name, queue_pos, song_url, singers),
+                "INSERT INTO song_queue(song_name, queue_pos, song_urls, singers) VALUES(?, ?, ?, ?)",
+                (song_name, queue_pos, song_urls_string, singers),
             )
 
             conn.commit()
@@ -160,19 +161,19 @@ def add_singer():
                     if s.strip()
                 ]
                 msg = ""
-                should_run = False  # prevent Running if nothing changes
+                should_update = False  # prevent Running if nothing changes
                 for new_singer in new_singers:
                     if new_singer.title() not in singers:
                         if (len(singers) + 1) <= Max_Singers:
                             singers.append(new_singer)
-                            should_run = True
+                            should_update = True
                             msg += f"{new_singer} Added Succesfully!\n"
                         else:
                             msg += f"{new_singer} can't be added, Song is full!\n"
                     else:
                         msg += f"{new_singer} can't be added, Already in List!\n"
 
-                if should_run:
+                if should_update:
                     cursor.execute(
                         "UPDATE song_queue SET singers=? WHERE song_id=?",
                         (", ".join(str(x) for x in singers), song_id),
@@ -197,12 +198,12 @@ def visualizer():
                 Song_queue_indexes.keys()
             )  # if row2 is empty create a empty list to prevent errors
         if row:
-            vid_id = parse_id(row[Song_queue_indexes["song_url"]])
+            vid_ids = row[Song_queue_indexes["song_urls"]]
             name = row[Song_queue_indexes["song_name"]]
-            if vid_id:
+            if vid_ids:
                 return render_template(
                     "visualizer.html",
-                    vid_id=vid_id,
+                    vid_ids=vid_ids,
                     song_id=row[Song_queue_indexes["song_id"]],
                     song_name=name,
                     singers=row[Song_queue_indexes["singers"]],
@@ -231,19 +232,25 @@ def error_message(title="", message="", redirect_time=1, redirect_location="queu
     )
 
 
-def parse_id(url):
-    if "(" in url and ")" in url:
-        url = url.split("(")[-1].split(")")[0]
+def parse_id(urls):
+    ids = ""
+    for url in urls:
+        if "(" in urls and ")" in urls:
+            url = url.split("(")[-1].split(")")[0]
 
-    if "youtu.be/" in url:
-        return url.split("youtu.be/")[1].split("?")[0]
+        if "youtu.be/" in url:
+            ids += url.split("youtu.be/")[1].split("?")[0] + ","
 
-    if "v=" in url:
-        return url.split("v=")[1].split("&")[0]
+        if "v=" in url:
+            ids += url.split("v=")[1].split("&")[0] + ","
 
-    if "embed/" in url:
-        return url.split("embed/")[1].split("?")[0]
+        if "embed/" in url:
+            ids += url.split("embed/")[1].split("?")[0] + ","
 
+    if ids:
+        return ids[0:-1]
+
+    print("Couldnt parse")
     return None
 
 
