@@ -21,7 +21,7 @@ Song_queue_indexes = {
 
 ##############
 ## SETTINGS ##
-Max_Singers = 3
+Max_Singers = 10
 Max_song_urls = 10
 
 
@@ -90,9 +90,11 @@ def add_to_queue():
     song_name = str(request.form.get("song_name"))
     song_urls = []
     song_artist = str(request.form.get("song_artist"))
+    vid_option = str(request.form.get("vid_type"))
 
     results = YoutubeSearch(
-        f"Embbedable Karaoke {song_name} - {song_artist}", max_results=Max_song_urls
+        f"Embbedable {vid_option} {song_name} - {song_artist}",
+        max_results=Max_song_urls,
     ).to_dict()
     if results:
         for result in results:
