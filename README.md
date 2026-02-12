@@ -8,12 +8,16 @@ Features
 - [ ] Turn Manager (Move Songs on Queue)
 - [x] Remote Add to Queue, from mobile WebApp
 - [x] Automatic Karaoke Video Selection
-  - [ ] Multiple videos in case of automatic selection not ideal
+  - [x] Multiple videos in case of automatic selection not ideal
 - [x] Main web app to show lyrics
 - [x] Allow for Queue Visualization through Mobile Web App (And Turns)
 - [x] Allow user to join songs already in Queue
 - [x] Automated install scripts
 
+
+TODOs
+- [ ] Improve / make UI
+      
 ## Usage
 
 ---
