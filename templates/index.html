@@ -2,11 +2,22 @@
 
 {% block body %}
     <meta http-equiv="refresh" content="10;url=/visualizer">
+
+    <center>
     <h1>Welcome to the KaraokeParty!</h1>
-    <div>
-      <a class='btn btn-primary' href="{{ url_for('visualizer') }}">Click here to go to VISUALIZER</a>
+    </center>
+
+    <br>
+    
+    <div class="main_content">
+      <div>
+        <h3>Scan this Qr code to Add songs to the Queue!</h3>
+        <p>This screen will autorefresh untill there are songs on Queue</p>
+        <a class='btn btn-primary' href="{{ url_for('visualizer') }}">Click here to go to VISUALIZER</a>
+      </div>
+      <br>
+      <a href="{{ url_for('queue') }}">
+        <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
+      </a>
     </div>
-    <a href="{{ url_for('queue') }}">
-    <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
-    </a> 
 {% endblock %}

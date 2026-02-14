@@ -2,7 +2,7 @@
 
 {% block body %}
     <center>
-    <h1>Karaoke Party</h1>
+    <!-- <h2>Karaoke Party</h2> -->
     {% if singers != "" %}
       <h2>{{ song_name }} → 🎙️{{ singers }}</h2>
     {% else %} 
@@ -10,7 +10,10 @@
     {% endif %}
 
     </center>
-    <div id="player"></div>
+
+    <center>
+      <div id="player" class="player"></div>
+    </center>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
       let player;
@@ -38,7 +41,11 @@
       }
       
       function onPlayerReady(event) {
-        //player.playVideo()
+        //player.playVideo();
+        setTimeout(function () {
+          player.playVideo();
+          player.getIframe().requestFullscreen();
+        }, 5000);
       }
 
       function onPlayerStateChange(event) {
@@ -78,7 +85,7 @@
 
       function cycleUrl(dir) {
         url_index = ((url_index + dir) % urls_list_length + urls_list_length) % urls_list_length;
-        player.loadVideoById(song_urls[url_index]);
+        player.cueVideoById(song_urls[url_index]);
         UpdateUrlIndexDisplay();
       }
 
@@ -89,9 +96,11 @@
     </script>
     
     <h6>
-      If you don't like the video you can change it here: 
-    <input type="button" value="⬅️" onClick="cycleUrl(-1);" />
-    <input type="button" value="➡️" onClick="cycleUrl(1);" />
+      If you don't like the video you can change it here:
+    <img class='Button' onClick="cycleUrl(-1)" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpng.pngtree.com%2Fpng-vector%2F20250513%2Fourmid%2Fpngtree-red-neon-left-arrow-png-image_16258866.png&f=1&nofb=1&ipt=ec09e00501436ea9f13d745607189bcacd83136cb402e877330a53ac23114d84" alt="←">
+    <img class='Button' onClick="cycleUrl(1)" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.pixabay.com%2Fphoto%2F2012%2F04%2F02%2F15%2F56%2Fright-24823_1280.png&f=1&nofb=1&ipt=e517fb0dd86938b557dca3fabd89e15344e8165d5e63d744db06ad442124377b" alt="→">
+    <!-- <input class="Button" type="button" value="←" onClick="cycleUrl(-1);" /> -->
+    <!-- <input class="Button" type="button" value="→" onClick="cycleUrl(0);" /> -->
     <div id="url_index_display" style="display: inline-block;"> 0/0</div>
     </h6>
 

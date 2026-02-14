@@ -3,17 +3,46 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha256-/ykJw/wDxMa0AQhHDYfuMEwVb4JHMx9h4jD4XvHqVzU=" crossorigin="anonymous" />
 
 <style>
-<!--  html { -->
-<!--   background-image: url('https://picsum.photos/2000'); -->
-<!--   background-repeat: no-repeat; -->
-<!--   background-attachment: fixed;   -->
-<!--   background-size: cover; -->
-<!-- } -->
-body {
-  background-color: rgba(0,0,0,0.4);
-  min-height: 100vh;
-  margin: 0;
+html {
+  background-image: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F2973600.jpg&f=1&nofb=1&ipt=5f111afa438fa2dcd6fed5b46bae173c5d49b702ec97a5a01f02baed9c1fad60');
+  background-repeat: no-repeat;
+  background-attachment: fixed;  
+  background-size: cover;
 }
+
+body {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  min-height: 100vh;
+  <!-- background-image: url('https://picsum.photos/2000'); -->
+  <!-- background-repeat: no-repeat; -->
+  <!-- background-attachment: fixed;   -->
+  <!-- background-size: cover; -->
+}
+
+.main_content {
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  min-height: 50vh;
+  gap: 30px;
+}
+
+.player {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 70vh;
+  max-width: 100vh;
+  padding: 20px 0;
+}
+
+.Button {
+  max-height: 25px;
+  background-color: rgba(0,0,0,0);
+  color: white;
+}
+
 </style>
 
 <html lang = "en">
@@ -22,8 +51,8 @@ body {
     <title>Karaoke Party</title>
   </head>
 
-  <body>
+  <div class="main_div">
     {% block body %}{% endblock %}
-  </body>
+  </div>
 
 </html>
