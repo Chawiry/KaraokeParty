@@ -69,14 +69,16 @@
           });
       }
 
+      let vids_with_errors = 0;
       function onPlayerError(event) {
         if (event.data === 101 || event.data === 150)
         {
-          //Change url, if no more urls show error
+          //Change url, if show embbeding error
           if (url_index + 1 < urls_list_length)
           {
+            vids_with_errors++;
             cycleUrl(1)
-          } else {
+          } else if (vids_with_errors >= urls_list_length) {
             document.getElementById("error").innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready</h3>";
           }
 

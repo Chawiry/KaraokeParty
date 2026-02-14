@@ -1,70 +1,95 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h2>KARAOKE QUEUE</h2>
-    <body>Add songs to the <b>QUEUE</b> below!</body>
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h2 class="display-5">Karaoke Queue</h2>
+    <p class="text-muted">Add songs to the <b>QUEUE</b> below!</p>
+  </div>
 
-    <div>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
       <form action="{{ url_for('add_to_queue') }}" method="post">
-        <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name">
-        <input type="text" name="song_artist" autocomplete="off" autofocus placeholder="Artist">
-        <br>
-        <input type="radio" name="vid_type" checked required autofocus value="Karaoke" > <label>Karaoke</label>
-        <input type="radio" name="vid_type" required value="Lyrics"> <label>Lyrics</label>
-        <!-- <input type="url" name="song_url" autocomplete="off" autofocus placeholder="Song URL"> -->
-        <br>
-        <label for="names">Enter names (comma-separated):</label><br>
-        <textarea name="singers" rows="4" cols="30" placeholder="Jose, Emilio, Diego"></textarea>
-        <br>
-        <button type="submit">Confirm</button>
+        <div class="form-group">
+          <input type="text" name="song_name" autocomplete="off" required autofocus placeholder="Song Name" class="form-control form-control-lg">
+        </div>
+        <div class="form-group">
+          <input type="text" name="song_artist" autocomplete="off" autofocus placeholder="Artist" class="form-control">
+        </div>
+
+        <div class="btn-group btn-group-toggle d-flex mb-3" data-toggle="buttons">
+          <label class="btn btn-outline-secondary w-100">
+            <input type="radio" name="vid_type" required autofocus value="Karaoke" checked> Karaoke
+          </label>
+          <label class="btn btn-outline-secondary w-100">
+            <input type="radio" name="vid_type" required value="Lyrics"> Lyrics
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="small font-weight-bold" style="color: black;">Singers (comma-separated):</label>
+          <textarea name="singers" rows="2" class="form-control" placeholder="Jose, Emilio..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-block btn-lg shadow">Add to Queue</button>
       </form>
     </div>
-    <br>
-    <div>
-      <h3><b>QUEUE</b></h3>
-      <ol id="songs_List"></ol>
-      <script>
-        let songs = '{{ songs }}';
-        if(songs != '')
-        {
-          let list = document.getElementById("songs_List");
-          songs.split("*^%").forEach((song) => {    ///*^% is a separator to split without errors
-            let li = document.createElement("li");
-            song_data = song.split("$%$%");
-            li.textContent = song_data[1];
-            li.insertAdjacentHTML("beforeend", `<br><a class='btn btn-primary' onclick=joinSong(${song_data[0]})  > TODO-CHANGE Click here To Join Song</a>`)
-            list.appendChild(li);
-          });
-        }
-        else
-        {
-          let li = document.createElement("li");
-          li.innerText = "No Songs on QUEUE";
-          document.getElementById("songs_List").appendChild(li);
-        }
+  </div>
 
-        function joinSong(_song_id){
-            let name = prompt("What is your Name?" + _song_id);
-            if (!name) 
-            {
-              alert("Empty name, please enter a correct name!");
-              return;
-            }
-            fetch('/add_singer', {
-              method : "POST",
-              headers : {'Content-Type' : 'application/json'},
-              body : JSON.stringify({song_id: _song_id, new_singer: name})
-            })
-              .then(response => {
-                if(!response.ok) alert("Somethings went wrong")
-                return response.text();
-              })
-              .then(msg => {
-                if (msg) alert(msg);
-                window.location.href = '{{ url_for('queue') }}';
-              });
-          }
-      </script>
-    </div>
 
-{% endblock %}
+  <h4 class="mb-0">Upcoming Songs</h4>
+  <ol style="color:black;" class="list-group list-group-flush" id="songs_List"></ol>
+
+  <script>
+    let songs = '{{ songs }}';
+    let li = document.createElement("li");
+    if(songs.trim() != '')
+    {
+      let list = document.getElementById("songs_List");
+      songs.split("*^%").forEach((song) => {    ///*^% is a separator to split without errors
+        let [id, name] = song.split("$%$%");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+        li.innerHTML = `
+                <div>
+                    <span class="font-weight-bold">${name}</span>
+                </div>
+                <button class="btn btn-primary btn-sm rounded-pill" onclick="joinSong(${id})">
+                    🎙️ Add Name
+                </button>
+            `;
+        //li.textContent = name;
+        //li.insertAdjacentHTML("beforeend", `<br><a class='btn btn-primary' onclick=joinSong(${id})  > TODO-CHANGE Click here To Join Song</a>`)
+        list.appendChild(li);
+      });
+    }
+    else
+    {
+      list.innerHTML = "<li class='list-group-item text-muted text-center'>No songs in queue yet.</li>";
+      //li.innerText = "No Songs on QUEUE";
+      //document.getElementById("songs_List").appendChild(li);
+    }
+
+    function joinSong(_song_id){
+      let name = prompt("What is your Name?" + _song_id);
+      if (!name) 
+      {
+        alert("Empty name, please enter a correct name!");
+        return;
+      }
+      fetch('/add_singer', {
+        method : "POST",
+        headers : {'Content-Type' : 'application/json'},
+        body : JSON.stringify({song_id: _song_id, new_singer: name})
+      })
+        .then(response => {
+          if(!response.ok) alert("Somethings went wrong")
+          return response.text();
+        })
+        .then(msg => {
+          if (msg) alert(msg);
+          window.location.href = '{{ url_for('queue') }}';
+        });
+    }
+  </script>
+  {% endblock %}
