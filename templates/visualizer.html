@@ -4,16 +4,16 @@
     <center>
     <!-- <h2>Karaoke Party</h2> -->
     {% if singers != "" %}
-      <h2>{{ song_name }} → 🎙️{{ singers }}</h2>
+      <h3>{{ song_name }} → 🎙️{{ singers }}</h3>
     {% else %} 
-      <h2>{{ song_name }}</h2>
+      <h3>{{ song_name }}</h3>
     {% endif %}
 
     </center>
 
-    <center>
+    <div class="player-wrapper">
       <div id="player" class="player"></div>
-    </center>
+    <!-- </center> -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
       let player;
@@ -77,7 +77,7 @@
           {
             cycleUrl(1)
           } else {
-            document.getElementById("error").innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready <input type='button' value='Skip' onClick='advance_queue();' /> </h3>";
+            document.getElementById("error").innerHTML = "<h3>Video can't be embeded, Please play on the official Youtube Page and Skip the song when ready</h3>";
           }
 
         }
@@ -95,27 +95,39 @@
 
     </script>
     
-    <h6>
-      If you don't like the video you can change it here:
-    <img class='Button' onClick="cycleUrl(-1)" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpng.pngtree.com%2Fpng-vector%2F20250513%2Fourmid%2Fpngtree-red-neon-left-arrow-png-image_16258866.png&f=1&nofb=1&ipt=ec09e00501436ea9f13d745607189bcacd83136cb402e877330a53ac23114d84" alt="←">
-    <img class='Button' onClick="cycleUrl(1)" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.pixabay.com%2Fphoto%2F2012%2F04%2F02%2F15%2F56%2Fright-24823_1280.png&f=1&nofb=1&ipt=e517fb0dd86938b557dca3fabd89e15344e8165d5e63d744db06ad442124377b" alt="→">
-    <!-- <input class="Button" type="button" value="←" onClick="cycleUrl(-1);" /> -->
-    <!-- <input class="Button" type="button" value="→" onClick="cycleUrl(0);" /> -->
-    <div id="url_index_display" style="display: inline-block;"> 0/0</div>
-    </h6>
+      <h6 style="display:flex; justify-content: space-between; align-items:center; width:100%;">
+        <div style="display: flex; align-items: center;">
+          Alt Video:
+          <img class='Button' onClick="cycleUrl(-1)" src=" {{ url_for('static', filename='UI/GuitarLeft.png') }}" alt="←">
+          <img class='Button' onClick="cycleUrl(1)" src=" {{ url_for('static', filename='UI/GuitarRight.png') }}" alt="→">
+          <span id="url_index_display"> 0/0</span>
+        </div>
 
+        <div> 
+          <a class='btn btn-danger' onClick='advance_queue();'>Skip</a>
+        </div>
+
+      </h6>
+    </div>
     <div id="error" style="color: red;"></div>
 
     {% if next_song_name != "" %}
       <div>
-        <h4>NEXT UP: {{ next_song_name }}
-        {% if next_singers %}
-           → 🎙️{{ next_singers}}
-        {% endif %}
-        </h4>
+        <h4>NEXT UP:</h4>
+        <h5>
+          🎵 {{ next_song_name }}
+          {% if next_singers %}
+            → 🎙️{{ next_singers}}
+          {% endif %}
+        </h5>
       </div>
     {% else %} 
-      <div><h4>NEXT UP: THE QUEUE IS EMPTY, ADD MORE SONGS</h4></div>
+      <div><h4>NEXT UP:</h4> <h6>THE QUEUE IS EMPTY, ADD MORE SONGS</h6></div>
     {% endif %}
-
+    
+    <div class="qr_container">
+      <a href="{{ url_for('queue') }}">
+        <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
+      </a>
+    </div>
 {% endblock %}

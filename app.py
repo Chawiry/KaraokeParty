@@ -42,8 +42,23 @@ def createDBTables():
     print("Done")
 
 
+QR_DATA = ""
+
+
+def generate_static_qr(app_context):
+    global QR_DATA
+
+    with app_context:
+        full_url = request.url_root.rstrip("/") + app.url_for("queue")
+        qr = qrcode.make(full_url)
+        img_buffer = io.BytesIO()
+        qr.save(img_buffer)
+        QR_DATA = base64.b64encode(img_buffer.getvalue()).decode()
+
+
 createDBTables()
 if __name__ == "__main__":
+    generate_static_qr(app.app_context())
     app.run(host=socket.gethostname())
     print("Running on: https://" + socket.gethostname() + ":5000/")
 
@@ -51,14 +66,10 @@ if __name__ == "__main__":
 @app.route("/")
 def index():
     # Landing page
+    if not QR_DATA:
+        generate_static_qr(app.app_context())
 
-    full_url = request.url_root.rstrip("/") + app.url_for("queue")
-    qr = qrcode.make(full_url)
-    img_buffer = io.BytesIO()
-    qr.save(img_buffer)
-    img_str = base64.b64encode(img_buffer.getvalue()).decode()
-
-    return render_template("index.html", qr_data=img_str)
+    return render_template("index.html", qr_data=QR_DATA)
 
 
 @app.route("/queue")
@@ -93,7 +104,7 @@ def add_to_queue():
     vid_option = str(request.form.get("vid_type"))
 
     results = YoutubeSearch(
-        f"Embbedable {vid_option} {song_name} - {song_artist}",
+        f"{vid_option} {song_name} - {song_artist}",  # Removed Embbedable from the search
         max_results=Max_song_urls,
     ).to_dict()
     if results:
@@ -109,7 +120,13 @@ def add_to_queue():
     if song_name and song_urls:
         if add_song_to_db(song_name, song_urls, singers):
             return render_template("succes.html")
-        return render_template("error.html")
+        return error_message(
+            title="Something Went Wrong Adding Your song to the Data Base",
+            message="Please try again",
+            redirect_time=5,
+            redirect_location="queue",
+        )
+    # return render_template("error.html")
     return error_message(
         title="Information is missing!",
         message="You need to provide a name and a url for your song",
@@ -203,14 +220,18 @@ def visualizer():
             vid_ids = row[Song_queue_indexes["song_urls"]]
             name = row[Song_queue_indexes["song_name"]]
             if vid_ids:
+                if not QR_DATA:
+                    generate_static_qr(app.app_context())
+
                 return render_template(
                     "visualizer.html",
                     vid_ids=vid_ids,
                     song_id=row[Song_queue_indexes["song_id"]],
-                    song_name=name,
-                    singers=row[Song_queue_indexes["singers"]],
-                    next_song_name=row2[Song_queue_indexes["song_name"]],
-                    next_singers=row2[Song_queue_indexes["singers"]],
+                    song_name=name.title(),
+                    singers=row[Song_queue_indexes["singers"]].title(),
+                    next_song_name=row2[Song_queue_indexes["song_name"]].title(),
+                    next_singers=row2[Song_queue_indexes["singers"]].title(),
+                    qr_data=QR_DATA,
                 )
             else:
                 advance_queue(row[Song_queue_indexes["song_id"]])
