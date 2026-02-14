@@ -6,6 +6,7 @@ from youtube_search import YoutubeSearch
 import qrcode
 import base64
 import io
+import subprocess
 
 import socket
 
@@ -42,7 +43,7 @@ def createDBTables():
     print("Done")
 
 
-QR_DATA = ""
+QR_DATA = {"queue": "", "wifi": ""}
 
 
 def generate_static_qr(app_context):
@@ -53,7 +54,30 @@ def generate_static_qr(app_context):
         qr = qrcode.make(full_url)
         img_buffer = io.BytesIO()
         qr.save(img_buffer)
-        QR_DATA = base64.b64encode(img_buffer.getvalue()).decode()
+        QR_DATA["queue"] = base64.b64encode(img_buffer.getvalue()).decode()
+
+        id = (
+            subprocess.check_output(["netsh", "wlan", "show", "interfaces"])
+            .decode("utf-8")
+            .split("\n")
+        )
+        id_results = str([b.split(":")[1][1:-1] for b in id if "Profile" in b])[2:-3]
+
+        password = (
+            subprocess.check_output(
+                ["netsh", "wlan", "show", "profiles", id_results, "key=clear"]
+            )
+            .decode("utf-8")
+            .split("\n")
+        )
+        pass_results = str(
+            [b.split(":")[1][1:-1] for b in password if "Key Content" in b]
+        )[2:-2]
+
+        qr = qrcode.make(f"WIFI:S:{id_results};T:WPA;P:{pass_results};;")
+        img_buffer = io.BytesIO()
+        qr.save(img_buffer)
+        QR_DATA["wifi"] = base64.b64encode(img_buffer.getvalue()).decode()
 
 
 createDBTables()
@@ -66,10 +90,12 @@ if __name__ == "__main__":
 @app.route("/")
 def index():
     # Landing page
-    if not QR_DATA:
+    if not QR_DATA["queue"]:
         generate_static_qr(app.app_context())
 
-    return render_template("index.html", qr_data=QR_DATA)
+    return render_template(
+        "index.html", queue_qr=QR_DATA["queue"], wifi_qr=QR_DATA["wifi"]
+    )
 
 
 @app.route("/queue")
@@ -220,7 +246,7 @@ def visualizer():
             vid_ids = row[Song_queue_indexes["song_urls"]]
             name = row[Song_queue_indexes["song_name"]]
             if vid_ids:
-                if not QR_DATA:
+                if not QR_DATA["queue"]:
                     generate_static_qr(app.app_context())
 
                 return render_template(
@@ -231,7 +257,8 @@ def visualizer():
                     singers=row[Song_queue_indexes["singers"]].title(),
                     next_song_name=row2[Song_queue_indexes["song_name"]].title(),
                     next_singers=row2[Song_queue_indexes["singers"]].title(),
-                    qr_data=QR_DATA,
+                    queue_qr=QR_DATA["queue"],
+                    wifi_qr=QR_DATA["wifi"],
                 )
             else:
                 advance_queue(row[Song_queue_indexes["song_id"]])

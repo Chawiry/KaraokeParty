@@ -128,8 +128,16 @@
     {% endif %}
     
     <div class="qr_container">
-      <a href="{{ url_for('queue') }}">
-        <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
-      </a>
+      <div id="queue">
+        <h5 for="queue_qr">Queue</h5>
+        <a href="{{ url_for('queue') }}">
+          <img id="queue_qr" src="data:image/png;base64,{{ queue_qr }}" alt="Qr code for mobile app should apear here">
+        </a>
+      </div>
+
+      <div id="wifi">
+        <h5 for="wifi_qr">Wifi</h5>
+        <img id="wifi_qr" src="data:image/png;base64,{{ wifi_qr }}" alt="Qr for wifi">
+      </div>
     </div>
 {% endblock %}

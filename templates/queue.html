@@ -17,7 +17,7 @@
           <input type="text" name="song_artist" autocomplete="off" autofocus placeholder="Artist" class="form-control">
         </div>
 
-        <div class="btn-group btn-group-toggle d-flex mb-3" data-toggle="buttons">
+        <div class="btn-group d-flex mb-3" data-toggle="buttons">
           <label class="btn btn-outline-secondary w-100">
             <input type="radio" name="vid_type" required autofocus value="Karaoke" checked> Karaoke
           </label>
@@ -27,7 +27,7 @@
         </div>
 
         <div class="form-group">
-          <label class="small font-weight-bold" style="color: black;">Singers (comma-separated):</label>
+          <label class="small font-weight-bold">Singers (comma-separated):</label>
           <textarea name="singers" rows="2" class="form-control" placeholder="Jose, Emilio..."></textarea>
         </div>
 
@@ -36,17 +36,20 @@
     </div>
   </div>
 
-
-  <h4 class="mb-0">Upcoming Songs</h4>
-  <ol style="color:black;" class="list-group list-group-flush" id="songs_List"></ol>
+  <br>
+  <h4 class="mb-0 text-center">Upcoming Songs</h4>
+  <br>
+  <div class="card">
+    <ol class="list-group list-group-flush" id="songs_List"></ol>
+  </div>
 
   <script>
     let songs = '{{ songs }}';
-    let li = document.createElement("li");
+    let list = document.getElementById("songs_List");
     if(songs.trim() != '')
     {
-      let list = document.getElementById("songs_List");
       songs.split("*^%").forEach((song) => {    ///*^% is a separator to split without errors
+        let li = document.createElement("li");
         let [id, name] = song.split("$%$%");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
 

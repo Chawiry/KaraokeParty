@@ -14,10 +14,16 @@
         <h3>Scan this Qr code to Add songs to the Queue!</h3>
         <p>This screen will autorefresh untill there are songs on Queue</p>
         <a class='btn btn-primary' href="{{ url_for('visualizer') }}">Click here to go to VISUALIZER</a>
+        
+        <div class="wifi_qr_index">
+          <b>Connect to the wifi first</b>
+          <br>
+          <img src="data:image/png;base64,{{ wifi_qr }}" alt="Qr code for the wifi">
+        </div>
       </div>
       <br>
       <a href="{{ url_for('queue') }}">
-        <img src="data:image/png;base64,{{ qr_data }}" alt="Qr code for mobile app should apear here">
+        <img src="data:image/png;base64,{{ queue_qr }}" alt="Qr code for mobile app should apear here">
       </a>
     </div>
 {% endblock %}

@@ -20,16 +20,40 @@
 
 body {
   background-color: rgba(0, 0, 0, 0.6);
-  color: white;
+  color: #e0e0e0;
   min-height: 100vh;
 }
 
+.card, .list-group-item, .form-control {
+    background-color: #1a1a1a !important; /* Dark grey panels */
+    border: 1px solid #333 !important;   /* Subtle borders */
+    color: white !important;
+}
+
+.btn-success {
+    background-color: #28a745 !important; /* The specific Karaoke Green */
+    border: none;
+    padding: 12px;
+}
+
 .main_content {
-  display: flex; 
-  justify-content: center; 
+  display: flex;
+  justify-content: center;
   align-items: center;
   min-height: 50vh;
   gap: 30px;
+}
+
+.wifi_qr_index {
+  display: flex;
+  padding: 10%;
+  gap:5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.wifi_qr_index img {
+  width: 15vh;
 }
 
 .player {
@@ -54,16 +78,23 @@ body {
   filter: invert(100%);
 }
 
-.qr_container{
-  position: fixed;
-  bottom: 5%;
-  right: 5%;
-  border-radius: 10px;
-}
-
 .qr_container img{
   width: 10vh;
   height: 10vh;
+}
+
+.qr_container #queue{
+  position: fixed;
+  border-radius: 10px;
+  top: 2.5%;
+  right: 2.5%;
+}
+
+.qr_container #wifi{
+  position: fixed;
+  border-radius: 10px;
+  top: 2.5%;
+  left: 2.5%;
 }
 </style>
 
