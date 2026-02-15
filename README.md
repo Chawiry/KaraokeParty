@@ -22,7 +22,11 @@ TODOs
 ## Usage
 
 ---
-Follow the guide or use the ```windowsRun.ps1``` for windows or ```linuxRun.sh``` for Linux
+Follow the guide or use this command on windows powershell (for linux you can clone the repo and run the ```linuxRun.sh```)
+
+```pwsh
+https://raw.githubusercontent.com/Chawiry/KaraokeParty/refs/heads/main/windowsRun.ps1?token=GHSAT0AAAAAADUNJVFE7SC3AO27TP6FHUAY2MRDB6Q
+```
 
 Create the venv and activate it
 
