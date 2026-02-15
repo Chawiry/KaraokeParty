@@ -269,7 +269,9 @@ def visualizer():
                     redirect_location="visualizer",
                 )
     # TODO: Change this to a proper template
-    return "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
+    return render_template(
+        "no_queue.html"
+    )  # "<h1>No Songs on Queue</h1> <meta http-equiv='refresh' content='2;url=/'>"
 
 
 def error_message(title="", message="", redirect_time=1, redirect_location="queue"):
