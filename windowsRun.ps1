@@ -7,5 +7,3 @@ python -m venv .KPvenv
 pip install -r requirements.txt
 Start-Process "http://$(hostname):5000"
 flask run --host=$(hostname)
-cd ..
-rm ./KaraokeParty
