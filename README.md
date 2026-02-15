@@ -21,7 +21,6 @@ TODOs
 
 ## Usage
 
----
 Follow the guide or use this command on windows powershell (for linux you can clone the repo and run the ```linuxRun.sh```)
 
 ```pwsh
