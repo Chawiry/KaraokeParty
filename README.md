@@ -1,6 +1,6 @@
 # Karaoke Party
 
-Queued Karaoke from yt that basically runs with just one command
+Queued Karaoke from yt that basically runs with just one command on windows and linux (macos should work with the linuxRun, not tested)
 Have the main screen show the web site and queue songs through phone with a qr code
 
 Features
