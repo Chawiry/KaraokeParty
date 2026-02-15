@@ -1,17 +1,18 @@
 # Karaoke Party
 
-Self hosted Karaoke Web app
+Queued Karaoke from yt that basically runs with just one command
+Have the main screen show the web site and queue songs through phone with a qr code
 
 Features
 
 - [x] Song Queue
-- [ ] Turn Manager (Move Songs on Queue)
+- [ ] Turn Manager (Move Songs on Queue or Delete them)
 - [x] Remote Add to Queue, from mobile WebApp
 - [x] Automatic Karaoke Video Selection
   - [x] Multiple videos in case of automatic selection not ideal
-- [x] Main web app to show lyrics
+- [x] Main web app to show lyrics (this would go on a TV or the main screen)
 - [x] Allow for Queue Visualization through Mobile Web App (And Turns)
-- [x] Allow user to join songs already in Queue
+- [x] Allow user to join songs already in Queue (and limited to the number of "mics"; default is 10)
 - [x] Automated install scripts
 
 TODOs
