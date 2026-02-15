@@ -49,6 +49,9 @@ Run
 flask run --host=$(hostname)
 ```
 
+## Uninstalling
+To Uninstall just delete the KaraokeParty directory
+
 ```Linux
 flask run --host=$HOST
 ```
